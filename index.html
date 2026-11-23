@@ -96,6 +96,7 @@ input[type=range]{padding:0;border:0;background:transparent;height:34px;accent-c
 #fbTxt{width:100%;box-sizing:border-box;background:#0b1a30;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 .gal{flex:none;margin-left:auto;text-align:center;background:var(--accent);color:#1a1405;font-weight:800;font-size:13px;line-height:1.2;padding:10px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
 .gal:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+#vc{text-align:center;font-size:15px;font-weight:700;color:var(--mute);padding:2px 0;margin:0;min-height:1.3em}
 </style>
 </head>
 <body>
@@ -240,18 +241,19 @@ input[type=range]{padding:0;border:0;background:transparent;height:34px;accent-c
     <div class="promo"><button type="button" class="link" id="promoBtn" aria-expanded="false" aria-controls="promoBox">Have a promo code?</button>
       <div id="promoBox" hidden><div class="row"><input id="pc" autocomplete="off" aria-label="Promo code" placeholder="Enter promo code(s)"><button type="button" id="promoApply">Apply</button></div><p class="disc" id="promoNote"></p></div><div id="promoList" aria-live="polite"></div></div>
     <label class="chk ack"><input type="checkbox" id="ack"><span>I understand the price may not be exact and this is only an estimated amount.</span></label>
-    <a class="btn off" id="sms" aria-disabled="true" tabindex="-1" href="sms:+16042029402">Text this estimate</a>
+    <a class="btn off" id="sms" aria-disabled="true" tabindex="-1" href="mailto:bestbacksplash@gmail.com">Email this estimate</a>
     <p class="disc" id="ackhint">Check the box above first, then tap the button.</p>
-    <p class="disc" id="fb" hidden><button type="button" id="fbBtn" class="lnk">Text not opening? Copy the estimate instead.</button></p>
+    <p class="disc" id="fb" hidden><button type="button" id="fbBtn" class="lnk">Email not opening? Copy the estimate instead.</button></p>
     <div id="fbBox" hidden>
       <textarea id="fbTxt" readonly rows="9" aria-label="Estimate text"></textarea>
       <button type="button" class="btn" id="fbCopy" style="width:100%;border:0;font-family:inherit;cursor:pointer">Copy estimate</button>
-      <p class="disc" id="fbNote">Paste it into a new text message to 604-202-9402.</p>
+      <p class="disc" id="fbNote">Paste it into a new email to bestbacksplash@gmail.com.</p>
     </div>
     <button type="button" id="reset" class="lnk" style="display:block;margin:22px auto 0;font-size:15px;padding:10px 18px;border:1px solid var(--line);border-radius:999px;text-decoration:none">Clear and reset quote</button>
   </section>
 </main>
 
+<div id="vc" aria-hidden="true"></div>
 <div class="bar"><div><span id="barsf">0 sq ft</span><i class="est"><b>Estimate only</b><u>Final price may differ</u></i><b id="bartot">$0.00</b></div></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -430,7 +432,7 @@ function run(){
   if(calcDone){$('quote').innerHTML=SNAP.h;$('pm').value=SNAP.pm;$('tx').value=SNAP.tx;$('bartot').textContent=SNAP.tot;$('stale').hidden=(S.h===SNAP.h&&S.tot===SNAP.tot)}
   const ok=$('ack').checked&&calcDone;$('sms').classList.toggle('off',!ok);$('sms').setAttribute('aria-disabled',String(!ok));$('sms').tabIndex=0;$('ackhint').hidden=ok;
   $('ackhint').textContent=calcDone?'Check the box above first, then tap the button.':'Tap Calculate Quote first, then check the box.';
-  if(calcDone){$('fbTxt').value=SNAP.body;$('sms').href='sms:+16042029402'+(IOS?'&':'?')+'body='+encodeURIComponent(SNAP.body)}
+  if(calcDone){$('fbTxt').value=SNAP.body;$('sms').href='mailto:bestbacksplash@gmail.com?subject='+encodeURIComponent('Quote request: '+($('job').value.trim()||'Tile job'))+'&body='+encodeURIComponent(SNAP.body.replace(/\n/g,'\r\n'))}
   $('fb').hidden=!ok;if(!ok)$('fbBox').hidden=true;
   document.querySelectorAll('.chip[data-w]').forEach(c=>c.setAttribute('aria-pressed',String(+c.dataset.w===n('tw')&&+c.dataset.h===n('th'))));
 }
@@ -452,7 +454,7 @@ document.querySelectorAll('.chip[data-m]').forEach(c=>c.addEventListener('click'
 $('sms').addEventListener('click',e=>{if(!calcDone){e.preventDefault();const c=$('calc');c.scrollIntoView({block:'center',behavior:'smooth'});c.classList.remove('ackflash');void c.offsetWidth;c.classList.add('ackflash');return}if(!$('ack').checked){e.preventDefault();const l=$('ack').closest('label');l.classList.remove('ackflash');void l.offsetWidth;l.classList.add('ackflash');l.scrollIntoView({block:'center',behavior:'smooth'});return}setTimeout(()=>{if(!document.hidden&&$('ack').checked)$('fbBox').hidden=false},1500)});
 $('fbBtn').addEventListener('click',()=>{$('fbBox').hidden=!$('fbBox').hidden});
 $('fbCopy').addEventListener('click',async()=>{const t=$('fbTxt');let ok=false;try{await navigator.clipboard.writeText(t.value);ok=true}catch(e){try{t.focus();t.select();t.setSelectionRange(0,99999);ok=document.execCommand('copy')}catch(e2){}}
-  $('fbNote').textContent=ok?'Copied. Paste it into a new text message to 604-202-9402.':'Press and hold the text above, choose Select all, then Copy. Paste it into a text to 604-202-9402.';if(!ok){t.focus();t.select()}});
+  $('fbNote').textContent=ok?'Copied. Paste it into a new email to bestbacksplash@gmail.com.':'Press and hold the text above, choose Select all, then Copy. Paste it into an email to bestbacksplash@gmail.com.';if(!ok){t.focus();t.select()}});
 $('promoBtn').addEventListener('click',()=>{const b=$('promoBox');b.hidden=!b.hidden;$('promoBtn').setAttribute('aria-expanded',String(!b.hidden));if(!b.hidden)$('pc').focus()});
 function renderPromos(){$('promoList').innerHTML=promos.map(c=>`<span class="pchip">${c}: ${PROMOS[c].pct}% off ${PROMOS[c].on.map(nm).join(' + ')}<button type="button" data-c="${c}" aria-label="Remove ${c}">×</button></span>`).join('')}
 function applyPromo(){const codes=$('pc').value.toUpperCase().split(/[\s,;]+/).filter(Boolean);const bad=[],dup=[];let ok=0;
@@ -467,6 +469,8 @@ let rsT;$('reset').addEventListener('click',()=>{const b=$('reset');if(b.dataset
 $('calc').addEventListener('click',()=>{calcReq=true;run();calcReq=false});
 load();run();
 $('quote').innerHTML='<tr><td colspan="2" class="note">Tap Calculate Quote to see your estimate.</td></tr>';$('bartot').textContent='—';
+(function(){var K='bbsco-quote-x7k2q9',B='https://countapi.mileshilliard.com/api/v1/',el=document.getElementById('vc');if(!el)return;var seen=false;try{seen=localStorage.getItem('bbc_v')==='1'}catch(e){}
+fetch(B+(seen?'get/':'hit/')+K).then(function(r){return r.json()}).then(function(d){var v=d&&d.value;if(v!=null&&/^\d+$/.test(String(v))){el.textContent=String(v);if(!seen){try{localStorage.setItem('bbc_v','1')}catch(e){}}}}).catch(function(){});})();
 </script>
 </body>
 </html>
